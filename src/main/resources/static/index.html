@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Hábitos - EliteMacro</title>
+  <link rel="stylesheet" href="css/index_style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-overlay"></div>
+  <div class="header-fade">
+    <header>
+        <div class="logo">EliteMacro</div>
+        <nav>
+            <a href="admin.html" class="btn-header admin-only" id="acciones-admin" style="display: none;">Panel Admin</a>
+            <a href="home.html" class="btn-header">Inicio</a>
+            <a href="logout" class="btn-header">Cerrar sesión</a>
+        </nav>
+      </header>
+  </div>
+  <header>
+    <div class="logo">EliteMacro</div>
+    <nav>
+      <a href="home.html" class="btn-header">Inicio</a>
+      <a href="logout" class="btn-header">Cerrar sesión</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container-wc">
+        <h1>Bienvenido, <span id="username">Invocador</span></h1>
+        <p class="subtitle">Estos son tus hábitos competitivos registrados:</p>
+    </div>
+    <section class="panel">
+        
+      <div class="habit-layout">
+        <div id="habit-container" class="habit-list">
+          <div class="habit-card">
+            <h3>Revisión de VOD</h3>
+            <p>Analizar una partida jugada en el día para detectar errores de macro y toma de decisiones.</p>
+            <span class="frecuencia">Frecuencia: Diario</span>
+          </div>
+        </div>
+
+        <div class="habit-form-box">
+          <h2>Crear nuevo hábito</h2>
+          <div class="habit-form">
+            <input type="text" placeholder="Nombre del hábito" id="nombre">
+            <input type="text" placeholder="Descripción" id="descripcion">
+            <select id="rol">
+              <option value="TOP">Top</option>
+              <option value="JUNGLE">Jungla</option>
+              <option value="MID">Mid</option>
+              <option value="ADC">ADC</option>
+              <option value="SUPPORT">Soporte</option>
+              <option value="TODOS">Todos</option>
+            </select>
+            <button class="btn" onclick="agregarHabito()">Agregar hábito</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+
+  
+  <div class="footer-fade">
+    <footer>
+        <p>© 2025 EliteMacro. Todos los derechos reservados.</p>
+      </footer>
+  </div>
+
+  <script src="js/index.js"></script>
+</body>
+</html>

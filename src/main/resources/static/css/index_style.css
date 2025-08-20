@@ -1,0 +1,199 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: url('img/zoe.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #f0f0f0;
+    font-family: 'Inter', sans-serif;
+  
+  }
+  .background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 5, 0.8);
+    z-index: -1;
+  }  
+  header {
+    position: relative;
+    z-index: 2;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-weight: 500;
+    z-index: 10;
+  }
+  
+  .header-fade {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
+    z-index: 2;
+  }
+  
+  header nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 1rem;
+    font-weight: bold;
+  }
+  .btn-header {
+    background: none;
+    color: white;
+    border: 2px solid white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin-left: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .btn-header:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #6193ff;
+    z-index: 10;
+  }
+
+  .habit-layout {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    margin-top: 30px;
+  }
+  
+  .habit-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .habit-form-box {
+    flex: 0.9;
+    background: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(8px);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    margin-right: 1.5rem;
+  }
+  
+  .habit-form-box h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #fff;
+  }
+  
+  .habit-card {
+    background: rgba(40, 40, 40, 0.9);
+    border-left: 6px solid #00bfff;
+    padding: 15px;
+    border-radius: 10px;
+    transition: transform 0.2s ease;
+    margin-left: 1.2rem;
+  }
+  
+  .habit-card:hover {
+    transform: scale(1.02);
+  }
+  
+  .habit-card h3 {
+    margin: 0;
+    color: aliceblue;
+    font-size: 1.2em;
+  }
+  
+  .habit-card p {
+    margin: 5px 0;
+    color: #ccc;
+  }
+  
+  .frecuencia {
+    font-size: 0.9em;
+    color: #87cefa;
+  }
+  
+  .habit-form input,
+  .habit-form select {
+    width: 100%;
+    margin-bottom: 15px;    
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1e1e1e;
+    color: #fff;
+  }
+  
+  .habit-form .checkbox {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ccc;
+  }
+  
+  .btn {
+    background-color: #00bfff;
+    color: #000;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .btn:hover {
+    background-color: #009acd;
+  }
+
+  .container-wc{
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    color: #fff;
+  }
+
+  .container-wc h1 {
+    font-size: 2.1rem;
+    margin-bottom: 0.5rem;
+    margin-left: 1.8rem;
+    color: #60a5fa;
+  }
+  
+  .container-wc p {
+    font-size: 1.2rem;
+    color: #ccc;
+    margin-left: 1.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  footer {
+    position: relative;
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.9rem;
+    color: #ccc;
+    z-index: 2;
+  }
+  
+  .footer-fade {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    z-index: 1;
+  }
+  

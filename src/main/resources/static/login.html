@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/login_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>Login | EliteMacro</title>
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>EliteMacro</h2>
+    <form method="post" action="/login">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" name="username" placeholder="Correo o nombre de usuario" required>
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" name="password" placeholder="Contraseña" required>
+      </div>
+      <button type="submit" class="btn-login">Iniciar sesión</button>
+    </form>
+  
+    <div class="options">
+      <a href="#">¿Olvidaste tu contraseña?</a>
+      <a href="registro.html">Crear cuenta</a>
+    </div>
+    <a href="home.html" class="btn-secondary">Volver a la página principal</a>
+  </div>
+  
+  </body>
+</html>

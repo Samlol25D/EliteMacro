@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Admin - EliteMacro</title>
+  <link rel="stylesheet" href="css/admin_style.css">
+</head>
+<body>
+  <div class="background-overlay"></div>
+
+  <div class="header-fade">
+    <header>
+      <div class="logo">EliteMacro | Panel Administrativo</div>
+      <nav>
+        <a href="index.html" class="btn-header">Habitos</a>
+      </nav>
+    </header>
+  </div>
+
+  <main>
+    <section class="section-box">
+      <h2>Crear Hábito Predeterminado</h2>
+      <form id="form-habito">
+        <input type="text" id="nombre" placeholder="Nombre" required>
+        <input type="text" id="descripcion" placeholder="Descripción" required>
+        <select id="rol">
+            <option value="TOP">Top</option>
+            <option value="JUNGLE">Jungla</option>
+            <option value="MID">Mid</option>
+            <option value="ADC">ADC</option>
+            <option value="SUPPORT">Soporte</option>
+            <option value="TODOS">Todos</option>
+          </select>         
+        <button type="submit" class="btn">Crear Hábito</button>
+      </form>
+    </section>
+
+    <section class="section-box">
+      <h2>Gestión de Usuarios</h2>
+      <table id="tabla-usuarios">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Activo</th>
+          <th>Acción</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="section-box">
+      <h2>Editar Hábitos Predeterminados</h2>
+      <table id="tabla-habitos">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Rol</th>
+          <th>Acción</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <div class="footer-fade"> 
+  </div>
+  <footer>
+    © 2025 EliteMacro. Todos los derechos reservados.
+  </footer>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

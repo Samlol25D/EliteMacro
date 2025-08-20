@@ -1,0 +1,173 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #f5f7fa, #dbe8fc);
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  
+  .hero {
+    position: relative;
+    background: url('img/leblanc.jpg') no-repeat center center/cover;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-left: 6%;
+  }
+  
+  .hero::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.9), transparent);
+    z-index: 1;
+  }
+  
+  .contenido {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    color: #fff;
+  }
+  
+  .contenido h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #60a5fa;
+  }
+  
+  .contenido p {
+    font-size: 1.2rem;
+    color: #ccc;
+    margin-bottom: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.8rem 1.6rem;
+    background-color: #286bd8;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn:hover {
+    background-color: #2563eb;
+  }
+  
+  
+  header {
+    position: relative;
+    z-index: 2;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-weight: 500;
+    z-index: 10;
+  }
+  
+  .header-fade {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
+    z-index: 2;
+  }
+  
+  header nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 1rem;
+    font-weight: bold;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #6193ff;
+    z-index: 10;
+  }
+  
+  
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    padding: 4rem 3rem;
+    gap: 2rem;
+  }
+  
+  .info {
+    flex: 1;
+    max-width: 50%;
+  }
+  
+  .info h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #1f2937;
+  }
+  
+  .info p {
+    font-size: 1.1rem;
+    color: #444;
+    margin-bottom: 0.5rem;
+  }
+  
+  .btn {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.8rem 1.6rem;
+    background-color: #0c3ca3;
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  
+  .btn:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .imagen {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .imagen img {
+    max-width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  
+  footer {
+    position: relative;
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.9rem;
+    color: #ccc;
+    z-index: 2;
+  }
+  
+  .footer-fade {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    z-index: 1;
+  }
