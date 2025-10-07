@@ -4,40 +4,48 @@
   <meta charset="UTF-8">
   <title>Panel Admin - EliteMacro</title>
   <link rel="stylesheet" href="css/admin_style.css">
+  <!-- Incluir jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
-  <div class="background-overlay"></div>
+<div class="background-overlay"></div>
 
-  <div class="header-fade">
-    <header>
-      <div class="logo">EliteMacro | Panel Administrativo</div>
-      <nav>
-        <a href="index.html" class="btn-header">Habitos</a>
-      </nav>
-    </header>
-  </div>
+<div class="header-fade">
+  <header>
+    <div class="logo">EliteMacro | Panel Administrativo</div>
+    <nav>
+      <a href="index.html" class="btn-header">Hábitos</a>
+    </nav>
+  </header>
+</div>
 
-  <main>
-    <!-- CORREGIR esta parte en admin.html -->
-    <section class="section-box">
-      <h2>Crear Hábito Predeterminado</h2>
-      <form id="form-habito">
-        <input type="text" id="nombre" placeholder="Nombre" required>
-        <input type="text" id="descripcion" placeholder="Descripción" required>
-        <select id="rol" required>
-          <option value="TOP">Top</option>
-          <option value="JUNGLE">Jungla</option>
-          <option value="MID">Mid</option>
-          <option value="ADC">ADC</option>
-          <option value="SUPPORT">Soporte</option>
-          <option value="TODOS">Todos</option>
-        </select>
-        <button type="submit" class="btn">Crear Hábito</button>
-      </form>
-    </section>
+<main>
+  <section class="section-box">
+    <h2>Crear Hábito Predeterminado</h2>
+    <form id="form-habito">
+      <input type="text" id="nombre" placeholder="Nombre" required>
+      <input type="text" id="descripcion" placeholder="Descripción" required>
+      <select id="rol" required>
+        <option value="TOP">Top</option>
+        <option value="JUNGLE">Jungla</option>
+        <option value="MID">Mid</option>
+        <option value="ADC">ADC</option>
+        <option value="SUPPORT">Soporte</option>
+        <option value="TODOS">Todos</option>
+      </select>
+      <button type="submit" class="btn">Crear Hábito</button>
+    </form>
+  </section>
 
-    <section class="section-box">
+  <section class="section-box">
+    <div class="section-header">
       <h2>Gestión de Usuarios</h2>
+      <button class="btn-reporte" onclick="generarReporteGeneral()">
+        📊 Generar Reporte General
+      </button>
+    </div>
+    <div class="table-container">
       <table id="tabla-usuarios">
         <thead>
         <tr>
@@ -45,15 +53,33 @@
           <th>Usuario</th>
           <th>Rol</th>
           <th>Activo</th>
-          <th>Acción</th>
+          <th>Acciones</th>
         </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+        <!-- Los datos se cargarán dinámicamente -->
+        </tbody>
       </table>
-    </section>
+    </div>
+  </section>
 
-    <section class="section-box">
+  <section class="section-box">
+    <div class="section-header">
       <h2>Editar Hábitos Predeterminados</h2>
+      <div class="filtro-rol">
+        <label for="filtro-rol-habitos">Filtrar por Rol:</label>
+        <select id="filtro-rol-habitos" onchange="filtrarHabitos()">
+          <option value="TODOS">Todos los roles</option>
+          <option value="TOP">Top</option>
+          <option value="JUNGLE">Jungla</option>
+          <option value="MID">Mid</option>
+          <option value="ADC">ADC</option>
+          <option value="SUPPORT">Soporte</option>
+          <option value="TODOS">Todos</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-container">
       <table id="tabla-habitos">
         <thead>
         <tr>
@@ -61,20 +87,23 @@
           <th>Nombre</th>
           <th>Descripción</th>
           <th>Rol</th>
-          <th>Acción</th>
+          <th>Acciones</th>
         </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+        <!-- Los datos se cargarán dinámicamente -->
+        </tbody>
       </table>
-    </section>
-  </main>
+    </div>
+  </section>
+</main>
 
-  <div class="footer-fade"> 
-  </div>
-  <footer>
-    © 2025 EliteMacro. Todos los derechos reservados.
-  </footer>
 
-  <script src="js/admin.js"></script>
+<footer>
+  <div class="footer-fade"></div>
+  © 2025 EliteMacro. Todos los derechos reservados.
+</footer>
+
+<script src="js/admin.js"></script>
 </body>
 </html>

@@ -247,34 +247,4 @@ public class AdminController {
             return ResponseEntity.internalServerError().body("Error al eliminar hábito: " + e.getMessage());
         }
     }
-
-    // ===== ENDPOINT PARA GENERAR REPORTES PDF =====
-
-    @GetMapping("/usuarios/{id}/reporte-pdf")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> generarReportePDF(@PathVariable Long id) {
-        try {
-            System.out.println("=== GENERANDO REPORTE PDF ===");
-            System.out.println("ID usuario: " + id);
-
-            Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
-            if (usuarioOpt.isPresent()) {
-                Usuario usuario = usuarioOpt.get();
-
-                // Por ahora solo devolvemos un mensaje
-                // Aquí puedes integrar una librería como iText o Apache PDFBox para generar PDFs
-                String mensaje = "Reporte PDF generado para usuario: " + usuario.getUsername() +
-                        "\nEsta funcionalidad está en desarrollo.";
-
-                System.out.println(mensaje);
-                return ResponseEntity.ok(mensaje);
-            } else {
-                System.out.println("Usuario no encontrado para generar reporte: " + id);
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            System.out.println("ERROR al generar reporte PDF: " + e.getMessage());
-            return ResponseEntity.internalServerError().body("Error al generar reporte: " + e.getMessage());
-        }
-    }
 }

@@ -6,6 +6,7 @@ import com.example.EliteMacro.elitemacro.repository.HabitoRepository;
 import com.example.EliteMacro.elitemacro.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,58 +45,49 @@ public class HabitoController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<?> crearHabito(@RequestBody Habito habito, Authentication auth) {
+    @PostMapping("/habitos")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> crearHabitoPredeterminado(@RequestBody Habito habito) {
         try {
-            System.out.println("=== INICIANDO CREACIÓN DE HÁBITO ===");
+            System.out.println("=== CREANDO HÁBITO PREDETERMINADO ===");
 
-            if (auth == null) {
-                System.out.println("ERROR: No hay autenticación");
-                return ResponseEntity.status(401).body("No estás autenticado");
+            // Validaciones
+            if (habito.getNombre() == null || habito.getNombre().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("El nombre del hábito es requerido");
+            }
+            if (habito.getDescripcion() == null || habito.getDescripcion().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("La descripción del hábito es requerida");
             }
 
-            String username = auth.getName();
-            System.out.println("Usuario autenticado: " + username);
+            // Obtener todos los usuarios activos
+            List<Usuario> usuariosActivos = usuarioRepository.findAll().stream()
+                    .filter(Usuario::isActivo)
+                    .toList();
 
-            // Obtener el usuario autenticado
-            Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
-            if (usuarioOpt.isEmpty()) {
-                System.out.println("ERROR: Usuario no encontrado en BD: " + username);
-                return ResponseEntity.badRequest().body("Usuario no encontrado");
+            System.out.println("Usuarios activos encontrados: " + usuariosActivos.size());
+
+            // Crear el hábito para cada usuario activo
+            for (Usuario usuario : usuariosActivos) {
+                Habito nuevoHabito = new Habito();
+                nuevoHabito.setNombre(habito.getNombre().trim());
+                nuevoHabito.setDescripcion(habito.getDescripcion().trim());
+                nuevoHabito.setRol(habito.getRol() != null ? habito.getRol() : "TODOS");
+                nuevoHabito.setCompletado(false);
+                nuevoHabito.setUsuario(usuario); // Asignar a usuario específico
+
+                habitoRepository.save(nuevoHabito);
+                System.out.println("Hábito creado para usuario: " + usuario.getUsername());
             }
 
-            Usuario usuario = usuarioOpt.get();
-            System.out.println("Usuario encontrado - ID: " + usuario.getId() + ", Username: " + usuario.getUsername());
+            System.out.println("=== HÁBITOS CREADOS EXITOSAMENTE ===");
+            System.out.println("Total de hábitos creados: " + usuariosActivos.size());
 
-            // Mostrar datos del hábito recibido
-            System.out.println("Datos del hábito recibidos:");
-            System.out.println(" - Nombre: " + habito.getNombre());
-            System.out.println(" - Descripción: " + habito.getDescripcion());
-            System.out.println(" - Rol: " + habito.getRol());
-
-            // Crear nuevo hábito con el usuario asignado
-            Habito nuevoHabito = new Habito();
-            nuevoHabito.setNombre(habito.getNombre());
-            nuevoHabito.setDescripcion(habito.getDescripcion());
-            nuevoHabito.setRol(habito.getRol());
-            nuevoHabito.setCompletado(false);
-            nuevoHabito.setUsuario(usuario);
-
-            System.out.println("Guardando hábito en la base de datos...");
-            Habito habitoGuardado = habitoRepository.save(nuevoHabito);
-
-            System.out.println("=== HÁBITO GUARDADO EXITOSAMENTE ===");
-            System.out.println("ID del hábito guardado: " + habitoGuardado.getId());
-            System.out.println("Nombre: " + habitoGuardado.getNombre());
-            System.out.println("Usuario asignado: " + habitoGuardado.getUsuario().getUsername());
-
-            return ResponseEntity.ok(habitoGuardado);
+            return ResponseEntity.ok("Hábito creado para " + usuariosActivos.size() + " usuarios activos");
 
         } catch (Exception e) {
-            System.out.println("=== ERROR AL CREAR HÁBITO ===");
-            System.out.println("Mensaje de error: " + e.getMessage());
+            System.out.println("ERROR al crear hábitos: " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body("Error al crear hábito: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error al crear hábitos: " + e.getMessage());
         }
     }
 
