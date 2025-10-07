@@ -1,3 +1,5 @@
+/* Asegúrate de que estos estilos estén en tu index_style.css */
+
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -5,9 +7,11 @@ body {
     background-size: cover;
     color: #f0f0f0;
     font-family: 'Inter', sans-serif;
-  
-  }
-  .background-overlay {
+    min-height: 100vh;
+    position: relative;
+}
+
+.background-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -15,35 +19,44 @@ body {
     height: 100%;
     background: rgba(5, 5, 5, 0.8);
     z-index: -1;
-  }  
-  header {
+}
+
+/* Header styles */
+.header-fade {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
+    pointer-events: none;
+    z-index: 1;
+}
+
+header {
     position: relative;
-    z-index: 2;
+    z-index: 10; /* Aumentado */
     padding: 1.2rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: white;
     font-weight: 500;
-    z-index: 10;
-  }
-  
-  .header-fade {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 120px;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
-    z-index: 2;
-  }
-  
-  header nav a {
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #6193ff;
+}
+
+header nav a {
     color: white;
     text-decoration: none;
     margin-left: 1rem;
     font-weight: bold;
-  }
-  .btn-header {
+}
+
+.btn-header {
     background: none;
     color: white;
     border: 2px solid white;
@@ -52,148 +65,241 @@ body {
     transition: background-color 0.3s ease;
     margin-left: 1rem;
     font-size: 0.95rem;
-  }
-  
-  .btn-header:hover {
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    z-index: 180;
+}
+
+.btn-header:hover {
     background-color: rgba(255, 255, 255, 0.1);
-  }
+}
 
-  .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #6193ff;
-    z-index: 10;
-  }
+/* Main content */
+main {
+    position: relative;
+    z-index: 5; /* Aumentado */
+    padding: 120px 2rem 2rem;
+    min-height: calc(100vh - 200px);
+}
 
-  .habit-layout {
+.container-wc {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    color: #fff;
+}
+
+.container-wc h1 {
+    font-size: 2.1rem;
+    margin-bottom: 0.5rem;
+    color: #60a5fa;
+}
+
+.container-wc .subtitle {
+    font-size: 1.2rem;
+    color: #ccc;
+    margin-bottom: 1.5rem;
+}
+
+/* Panel layout */
+.panel {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.habit-layout {
     display: flex;
-    justify-content: space-between;
     gap: 30px;
-    margin-top: 30px;
-  }
-  
-  .habit-list {
+    align-items: flex-start;
+}
+
+.habit-list {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 20px;
-  }
-  
-  .habit-form-box {
-    flex: 0.9;
+    min-height: 400px;
+}
+
+.habit-form-box {
+    flex: 0 0 400px;
     background: rgba(30, 30, 30, 0.8);
     backdrop-filter: blur(8px);
-    padding: 20px;
+    padding: 25px;
     border-radius: 15px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    margin-right: 1.5rem;
-  }
-  
-  .habit-form-box h2 {
+    position: relative; /* Importante */
+    z-index: 5; /* Importante */
+}
+
+.habit-form-box h2 {
     margin-top: 0;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     color: #fff;
-  }
-  
-  .habit-card {
+    text-align: center;
+}
+
+/* Habit cards - ESTA ES LA PARTE MÁS IMPORTANTE */
+.habit-card {
     background: rgba(40, 40, 40, 0.9);
     border-left: 6px solid #00bfff;
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
     transition: transform 0.2s ease;
-    margin-left: 1.2rem;
-  }
-  
-  .habit-card:hover {
-    transform: scale(1.02);
-  }
-  
-  .habit-card h3 {
-    margin: 0;
+    position: relative; /* Importante */
+    z-index: 5; /* Importante */
+    /* REMOVER cualquier pointer-events: none */
+}
+
+.habit-card:hover {
+    transform: translateX(5px);
+}
+
+.habit-card h3 {
+    margin: 0 0 10px 0;
     color: aliceblue;
     font-size: 1.2em;
-  }
-  
-  .habit-card p {
+}
+
+.habit-card p {
     margin: 5px 0;
     color: #ccc;
-  }
-  
-  .frecuencia {
+}
+
+.rol {
+    display: block;
     font-size: 0.9em;
     color: #87cefa;
-  }
-  
-  .habit-form input,
-  .habit-form select {
+    margin-top: 5px;
+}
+
+.estado {
+    display: block;
+    font-size: 0.9em;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+/* BOTONES - ESTILOS CRÍTICOS */
+.habit-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-small {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer; /* CRÍTICO */
+    font-size: 0.9em;
+    background-color: #00bfff;
+    color: #000;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    position: relative; /* Importante */
+    z-index: 10; /* Alto z-index */
+    pointer-events: auto; /* CRÍTICO - asegurar que sean clickeables */
+}
+
+.btn-small:hover {
+    background-color: #009acd;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background-color: #ff6b6b;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #ff5252;
+}
+
+/* Asegurar que los elementos dentro de habit-card sean clickeables */
+.habit-card * {
+    pointer-events: auto; /* Permitir clics en todos los elementos hijos */
+}
+
+/* Form styles */
+.habit-form input,
+.habit-form select {
     width: 100%;
-    margin-bottom: 15px;    
-    padding: 8px;
+    margin-bottom: 15px;
+    padding: 12px;
     border: none;
     border-radius: 5px;
     background-color: #1e1e1e;
     color: #fff;
-  }
-  
-  .habit-form .checkbox {
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #ccc;
-  }
-  
-  .btn {
+    font-size: 1em;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 5;
+}
+
+.habit-form input::placeholder {
+    color: #888;
+}
+
+.habit-form .btn {
     background-color: #00bfff;
     color: #000;
     border: none;
-    padding: 10px;
+    padding: 12px;
     border-radius: 5px;
     font-weight: bold;
-    cursor: pointer;
+    cursor: pointer; /* CRÍTICO */
     width: 100%;
-  }
-  
-  .btn:hover {
-    background-color: #009acd;
-  }
-
-  .container-wc{
+    font-size: 1em;
+    transition: background-color 0.3s ease;
     position: relative;
-    z-index: 2;
-    max-width: 600px;
-    color: #fff;
-  }
+    z-index: 5;
+}
 
-  .container-wc h1 {
-    font-size: 2.1rem;
-    margin-bottom: 0.5rem;
-    margin-left: 1.8rem;
-    color: #60a5fa;
-  }
-  
-  .container-wc p {
-    font-size: 1.2rem;
-    color: #ccc;
-    margin-left: 1.9rem;
-    margin-bottom: 1.5rem;
-  }
+.habit-form .btn:hover {
+    background-color: #009acd;
+}
 
-  footer {
+/* Messages */
+.no-habits {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 40px 20px;
+    background: rgba(40, 40, 40, 0.9);
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.error {
+    color: #ff6b6b;
+    text-align: center;
+    padding: 20px;
+    background: rgba(40, 40, 40, 0.9);
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+/* Footer */
+.footer-fade {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    z-index: 1; /* Bajo z-index para que no bloquee */
+}
+
+footer {
     position: relative;
     text-align: center;
     padding: 2rem;
     font-size: 0.9rem;
     color: #ccc;
     z-index: 2;
-  }
-  
-  .footer-fade {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 120px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-    z-index: 1;
-  }
-  
+}
+
+/* Regla de debug - temporal para testing */
+.debug-click {
+    border: 2px solid red !important;
+}

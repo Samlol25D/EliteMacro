@@ -1,65 +1,105 @@
-// Mostrar usuario logueado y botón admin si corresponde
+// Mostrar usuario logueado (solo nombre)
 fetch("/api/usuario")
-  .then(res => res.text())
-  .then(data => {
-    // Mostrar nombre de usuario
-    const nombre = data.split(" ")[0]; // ejemplo simple
-    document.getElementById("username").innerText = nombre || "Invocador";
-
-    // Mostrar botón solo si el usuario tiene el rol admin
-    if (data.includes("ROLE_ADMIN")) {
-      document.getElementById("acciones-admin").innerHTML = `
-        <a href="admin.html" class="btn-header admin-only" id="acciones-admin" style="display: none;">Panel Admin</a>
-      `;
-    }
+  .then(res => {
+    if (!res.ok) throw new Error('Error al obtener usuario');
+    return res.text();
+  })
+  .then(username => {
+    document.getElementById("username").innerText = username || "Invocador";
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    document.getElementById("username").innerText = "Invocador";
   });
 
-// Obtener hábitos en lista (si usas un <ul id="lista-habitos">)
-function cargarHabitos() {
-  fetch("/api/habitos")
-    .then(res => res.json())
-    .then(habitos => {
-      const lista = document.getElementById("lista-habitos");
-      if (lista) {
-        lista.innerHTML = "";
-        habitos.forEach(h => {
-          const item = document.createElement("li");
-          item.textContent = `${h.nombre} - ${h.descripcion} (${h.rol}) - Completado: ${h.completado ? 'Sí' : 'No'}`;
-          lista.appendChild(item);
-        });
-      }
-    });
-}
+// Verificar si es admin para mostrar el botón
+fetch("/api/usuario-info")
+  .then(res => {
+    if (!res.ok) return;
+    return res.json();
+  })
+  .then(userInfo => {
+    if (userInfo && userInfo.isAdmin) {
+      document.getElementById("acciones-admin").style.display = "block";
+    }
+  })
+  .catch(error => {
+    console.error('Error al verificar admin:', error);
+  });
 
-// Enviar nuevo hábito
-document.getElementById("form-habito")?.addEventListener("submit", function(e) {
-  e.preventDefault();
+// Función para agregar hábito
+function agregarHabito() {
+  const nombre = document.getElementById("nombre").value;
+  const descripcion = document.getElementById("descripcion").value;
+  const rol = document.getElementById("rol").value;
+
+  if (!nombre || !descripcion) {
+    alert('Por favor completa todos los campos');
+    return;
+  }
 
   const nuevoHabito = {
-    nombre: document.getElementById("nombre").value,
-    descripcion: document.getElementById("descripcion").value,
-    rol: document.getElementById("rol").value,
-    completado: document.getElementById("completado")?.checked || false
+    nombre: nombre,
+    descripcion: descripcion,
+    rol: rol,
+    completado: false
   };
+
+  console.log("Enviando hábito:", nuevoHabito);
 
   fetch("/api/habitos", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify(nuevoHabito)
-  }).then(() => {
-    this.reset();
-    cargarHabitos();
-  });
-});
+  })
+  .then(response => {
+    console.log("Respuesta del servidor:", response);
+    if (!response.ok) {
+      return response.text().then(text => { throw new Error(text) });
+    }
+    return response.json();
+  })
+  .then(habitoCreado => {
+    console.log("Hábito creado:", habitoCreado);
 
-// Mostrar hábitos como tarjetas en el panel
-document.addEventListener('DOMContentLoaded', function () {
-  fetch('/api/habitos')
-    .then(response => response.json())
+    // Limpiar formulario
+    document.getElementById("nombre").value = '';
+    document.getElementById("descripcion").value = '';
+    document.getElementById("rol").value = 'TODOS';
+
+    // Recargar la lista de hábitos
+    cargarMisHabitos();
+    alert('¡Hábito creado exitosamente!');
+  })
+  .catch(error => {
+    console.error('Error completo:', error);
+    alert('Error al crear el hábito: ' + error.message);
+  });
+}
+
+// Función para cargar MIS hábitos (solo los del usuario)
+function cargarMisHabitos() {
+  console.log("Cargando mis hábitos...");
+
+  fetch("/api/habitos/mis-habitos")
+    .then(response => {
+      console.log("Respuesta de mis-habitos:", response);
+      if (!response.ok) {
+        return response.text().then(text => { throw new Error(text) });
+      }
+      return response.json();
+    })
     .then(data => {
+      console.log("Hábitos recibidos:", data);
       const container = document.getElementById('habit-container');
-      if (!container) return;
       container.innerHTML = '';
+
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="no-habits">No tienes hábitos registrados. ¡Crea tu primer hábito!</p>';
+        return;
+      }
 
       data.forEach(habito => {
         const card = document.createElement('div');
@@ -67,14 +107,72 @@ document.addEventListener('DOMContentLoaded', function () {
         card.innerHTML = `
           <h3>${habito.nombre}</h3>
           <p>${habito.descripcion}</p>
-          <span class="frecuencia">${habito.frecuencia || ''}</span>
+          <span class="rol">Rol: ${habito.rol}</span>
+          <span class="estado">${habito.completado ? '✅ Completado' : '⏳ Pendiente'}</span>
+          <div class="habit-actions">
+            <button onclick="marcarCompletado(${habito.id}, ${!habito.completado})" class="btn-small">
+              ${habito.completado ? '❌ Desmarcar' : '✅ Completar'}
+            </button>
+            <button onclick="eliminarHabito(${habito.id})" class="btn-small btn-danger">🗑️ Eliminar</button>
+          </div>
         `;
         container.appendChild(card);
       });
     })
     .catch(error => {
       console.error('Error al cargar los hábitos:', error);
+      const container = document.getElementById('habit-container');
+      container.innerHTML = '<p class="error">Error al cargar los hábitos: ' + error.message + '</p>';
     });
+}
 
-  cargarHabitos();
+// Función para marcar como completado/pendiente
+function marcarCompletado(id, completado) {
+  fetch(`/api/habitos/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      completado: completado
+      // Mantener los otros campos igual
+    })
+  })
+  .then(response => {
+    if (!response.ok) throw new Error('Error al actualizar');
+    return response.json();
+  })
+  .then(() => {
+    cargarMisHabitos();
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Error al actualizar el hábito');
+  });
+}
+
+// Función para eliminar hábito
+function eliminarHabito(id) {
+  if (!confirm('¿Estás seguro de que quieres eliminar este hábito?')) {
+    return;
+  }
+
+  fetch(`/api/habitos/${id}`, {
+    method: "DELETE"
+  })
+  .then(response => {
+    if (!response.ok) throw new Error('Error al eliminar');
+    cargarMisHabitos();
+    alert('Hábito eliminado correctamente');
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Error al eliminar el hábito');
+  });
+}
+
+// Cargar hábitos cuando la página se carga
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Página cargada, iniciando carga de hábitos...");
+  cargarMisHabitos();
 });

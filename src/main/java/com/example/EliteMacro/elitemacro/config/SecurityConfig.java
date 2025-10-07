@@ -1,17 +1,20 @@
 package com.example.EliteMacro.elitemacro.config;
 
-
 import com.example.EliteMacro.elitemacro.security.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
@@ -25,20 +28,38 @@ public class SecurityConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,
-                                                            PasswordEncoder passwordEncoder) {
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder);
+        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/home.html").permitAll()
-                        .requestMatchers("/login.html", "/registro.html", "/api/registro", "/css/**", "/js/**").permitAll()
+                        // Permite acceso público a estos recursos
+                        .requestMatchers(
+                                "/",
+                                "/home.html",
+                                "/login.html",
+                                "/registro.html",
+                                "/index.html",
+                                "/api/registro",
+                                "/api/registro/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/static/**",
+                                "/webjars/**",
+                                "/favicon.ico"
+                        ).permitAll()
                         .requestMatchers("/api/habitos/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/admin/**", "/admin.html").hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -47,10 +68,15 @@ public class SecurityConfig {
                         .loginPage("/login.html")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/index.html", true)
+                        .failureUrl("/login.html?error=true")
                         .permitAll()
                 )
-                .logout(logout -> logout.logoutSuccessUrl("/home.html"))
-                .csrf(csrf -> csrf.disable());
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/home.html")
+                        .permitAll()
+                )
+                .csrf(csrf -> csrf.disable()); // Deshabilitado para APIs REST
 
         return http.build();
     }
