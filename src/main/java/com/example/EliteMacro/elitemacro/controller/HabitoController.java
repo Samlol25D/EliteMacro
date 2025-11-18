@@ -316,7 +316,6 @@ public class HabitoController {
             Habito actualizado = habitoRepository.save(habitoExistente);
             System.out.println("Hábito actualizado exitosamente");
 
-            // Crear respuesta simplificada
             Map<String, Object> response = new HashMap<>();
             response.put("id", actualizado.getId());
             response.put("nombre", actualizado.getNombre());
