@@ -16,16 +16,147 @@
 <header>
   <div class="logo">EliteMacro</div>
   <nav>
+    <!-- Perfil del usuario con progreso -->
+    <div class="user-profile">
+      <div class="profile-circle">
+        <div class="progress-ring">
+          <svg width="80" height="80" class="progress-ring-circle">
+            <circle class="progress-ring-background" cx="40" cy="40" r="36" stroke-width="4"></circle>
+            <circle class="progress-ring-fill" cx="40" cy="40" r="36" stroke-width="4"
+                    stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle>
+          </svg>
+          <div class="profile-image" onclick="abrirModalPerfil()">
+            <img src="css/img/default-avatar.png" alt="Foto de perfil" id="user-avatar">
+          </div>
+        </div>
+        <div class="level-badge" id="user-level">1</div>
+      </div>
+    </div>
+
     <a href="admin.html" class="btn-header" id="acciones-admin" style="display: none;">Panel Admin</a>
     <a href="home.html" class="btn-header">Inicio</a>
     <a href="logout" class="btn-header">Cerrar sesión</a>
   </nav>
 </header>
 
+<!-- Modal de edición de perfil -->
+<div id="modal-perfil" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Editar Perfil</h2>
+      <span class="close-modal" onclick="cerrarModalPerfil()">&times;</span>
+    </div>
+
+    <div class="modal-body">
+      <div class="profile-edit-section">
+        <!-- Foto de perfil -->
+        <div class="profile-picture-edit">
+          <div class="current-avatar">
+            <img src="css/img/default-avatar.jpg" alt="Foto actual" id="current-avatar-img">
+          </div>
+          <div class="avatar-actions">
+            <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+            <button type="button" class="btn-small" onclick="document.getElementById('avatar-upload').click()">
+              📷 Cambiar Foto
+            </button>
+          </div>
+        </div>
+
+        <!-- Información de la cuenta -->
+        <div class="account-info">
+          <h3>Información de la Cuenta</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nombre de usuario:</label>
+              <span id="info-username">-</span>
+            </div>
+            <div class="info-item">
+              <label>Email:</label>
+              <span id="info-email">-</span>
+            </div>
+            <div class="info-item">
+              <label>Nivel actual:</label>
+              <span id="info-level">-</span>
+            </div>
+            <div class="info-item">
+              <label>Rango:</label>
+              <span id="info-rank">-</span>
+            </div>
+            <div class="info-item">
+              <label>Experiencia total:</label>
+              <span id="info-exp-total">-</span>
+            </div>
+            <div class="info-item">
+              <label>Miembro desde:</label>
+              <span id="info-joined">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario de edición -->
+        <form id="form-editar-perfil" class="edit-form">
+          <h3>Editar Información</h3>
+
+          <div class="form-group">
+            <label for="edit-username">Nombre de usuario:</label>
+            <input type="text" id="edit-username" name="username" required>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-email">Email:</label>
+            <input type="email" id="edit-email" name="email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-password">Nueva contraseña:</label>
+            <input type="password" id="edit-password" name="password" placeholder="Dejar vacío para no cambiar">
+          </div>
+
+          <div class="form-group">
+            <label for="edit-password-confirm">Confirmar contraseña:</label>
+            <input type="password" id="edit-password-confirm" name="passwordConfirm" placeholder="Confirmar nueva contraseña">
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-danger" onclick="cerrarModalPerfil()">Cancelar</button>
+            <button type="submit" class="btn btn-success">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <main>
   <div class="container-wc">
     <h1>Bienvenido, <span id="username">Invocador</span></h1>
     <p class="subtitle">Estos son tus hábitos competitivos registrados:</p>
+
+    <!-- Panel de estadísticas del usuario -->
+    <div class="user-stats-panel">
+      <div class="stat-card">
+        <div class="level-badge-large">
+          <span class="level-number" id="user-level-large">1</span>
+          <span class="level-text">Nivel</span>
+        </div>
+        <div class="rank-badge" id="user-rank">HIERRO</div>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-info">
+          <span id="current-exp">0</span> / <span id="next-level-exp">100</span> XP
+          <span class="progress-percent" id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="level-up">Siguiente nivel: <span id="next-level">2</span></div>
+      </div>
+
+      <div class="total-exp">
+        <span>Experiencia Total: <span id="total-experiencia">0</span> XP</span>
+      </div>
+    </div>
   </div>
 
   <section class="panel">
@@ -47,6 +178,11 @@
             <option value="ADC">ADC</option>
             <option value="SUPPORT">Soporte</option>
           </select>
+          <select id="dificultad">
+            <option value="BAJA">Baja (10 XP)</option>
+            <option value="MEDIA" selected>Media (20 XP)</option>
+            <option value="ALTA">Alta (30 XP)</option>
+          </select>
           <button class="btn" onclick="agregarHabito()">Agregar hábito</button>
         </div>
       </div>
@@ -59,7 +195,6 @@
     <p>© 2025 EliteMacro. Todos los derechos reservados.</p>
   </footer>
 </div>
-
 
 <script src="js/index.js"></script>
 </body>

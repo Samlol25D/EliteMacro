@@ -2,15 +2,20 @@ package com.example.EliteMacro.elitemacro.controller;
 
 import com.example.EliteMacro.elitemacro.model.Habito;
 import com.example.EliteMacro.elitemacro.model.Usuario;
+import com.example.EliteMacro.elitemacro.service.UsuarioService;
 import com.example.EliteMacro.elitemacro.repository.HabitoRepository;
 import com.example.EliteMacro.elitemacro.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -23,6 +28,9 @@ public class HabitoController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     @GetMapping
     public ResponseEntity<?> listarHabitos() {
@@ -92,7 +100,7 @@ public class HabitoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Habito> obtenerHabito(@PathVariable Long id) {
+    public ResponseEntity<?> obtenerHabito(@PathVariable Long id) {
         System.out.println("=== OBTENIENDO HÁBITO POR ID ===");
         System.out.println("ID solicitado: " + id);
 
@@ -100,7 +108,22 @@ public class HabitoController {
         if (habitoOpt.isPresent()) {
             Habito habito = habitoOpt.get();
             System.out.println("Hábito encontrado: " + habito.getNombre());
-            return ResponseEntity.ok(habito);
+
+            // Crear respuesta simplificada
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", habito.getId());
+            response.put("nombre", habito.getNombre());
+            response.put("descripcion", habito.getDescripcion());
+            response.put("rol", habito.getRol());
+            response.put("dificultad", habito.getDificultad());
+            response.put("frecuencia", habito.getFrecuencia());
+            response.put("puntosExperiencia", habito.getPuntosExperiencia());
+            response.put("completado", habito.isCompletado());
+            response.put("activo", habito.isActivo());
+            response.put("fechaCreacion", habito.getFechaCreacion());
+            response.put("fechaActualizacion", habito.getFechaActualizacion());
+
+            return ResponseEntity.ok(response);
         } else {
             System.out.println("Hábito no encontrado con ID: " + id);
             return ResponseEntity.notFound().build();
@@ -144,8 +167,74 @@ public class HabitoController {
             return ResponseEntity.internalServerError().body("Error al obtener hábitos: " + e.getMessage());
         }
     }
+    @PostMapping
+    public ResponseEntity<?> crearHabito(@RequestBody Habito habito, Authentication authentication) {
+        try {
+            System.out.println("=== CREANDO NUEVO HÁBITO PERSONAL ===");
+            System.out.println("Hábito recibido: " + habito);
+
+            if (authentication == null) {
+                return ResponseEntity.status(401).body("No estás autenticado");
+            }
+
+            String username = authentication.getName();
+            System.out.println("Usuario autenticado: " + username);
+
+            Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+            if (usuarioOpt.isEmpty()) {
+                System.out.println("ERROR: Usuario no encontrado: " + username);
+                return ResponseEntity.badRequest().body("Usuario no encontrado");
+            }
+
+            Usuario usuario = usuarioOpt.get();
+
+            // Validaciones básicas
+            if (habito.getNombre() == null || habito.getNombre().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("El nombre del hábito es requerido");
+            }
+            if (habito.getDescripcion() == null || habito.getDescripcion().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("La descripción del hábito es requerida");
+            }
+
+            // Configurar el hábito
+            habito.setUsuario(usuario);
+            habito.setActivo(true);
+            habito.setCompletado(false);
+
+
+            // Establecer valores por defecto si no vienen
+            if (habito.getDificultad() == null) {
+                habito.setDificultad("MEDIA");
+            }
+            if (habito.getFrecuencia() == null) {
+                habito.setFrecuencia("DIARIA");
+            }
+            if (habito.getPuntosExperiencia() == 0) {
+                // Asignar puntos según dificultad
+                switch (habito.getDificultad().toUpperCase()) {
+                    case "BAJA": habito.setPuntosExperiencia(10); break;
+                    case "MEDIA": habito.setPuntosExperiencia(20); break;
+                    case "ALTA": habito.setPuntosExperiencia(30); break;
+                    default: habito.setPuntosExperiencia(20);
+                }
+            }
+
+            System.out.println("Hábito a guardar: " + habito);
+
+            Habito nuevoHabito = habitoRepository.save(habito);
+            System.out.println("Hábito guardado exitosamente: " + nuevoHabito.getId());
+
+            return ResponseEntity.ok(nuevoHabito);
+
+        } catch (Exception e) {
+            System.err.println("Error al crear hábito: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error al crear el hábito: " + e.getMessage());
+        }
+    }
 
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<?> actualizarHabito(
             @PathVariable Long id,
             @RequestBody Habito nuevo,
@@ -164,38 +253,70 @@ public class HabitoController {
             return ResponseEntity.notFound().build();
         }
 
-        Habito h = habitoOpt.get();
+        Habito habitoExistente = habitoOpt.get();
         String username = auth.getName();
 
-        // Verificar permisos: dueño o administrador
-        boolean esDuenio = h.getUsuario().getUsername().equals(username);
-        boolean esAdmin = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        try {
+            // Verificar permisos
+            boolean esDuenio = habitoExistente.getUsuario().getUsername().equals(username);
+            boolean esAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        System.out.println("Es dueño: " + esDuenio);
-        System.out.println("Es admin: " + esAdmin);
+            if (!esDuenio && !esAdmin) {
+                return ResponseEntity.status(403).body("No tienes permisos para editar este hábito");
+            }
 
-        if (!esDuenio && !esAdmin) {
-            System.out.println("ERROR: Sin permisos para editar");
-            return ResponseEntity.status(403).body("No tienes permisos para editar este hábito");
+            boolean estabaCompletado = habitoExistente.isCompletado();
+            boolean ahoraCompletado = nuevo.isCompletado();
+
+            System.out.println("Estado anterior: " + (estabaCompletado ? "COMPLETADO" : "PENDIENTE"));
+            System.out.println("Estado nuevo: " + (ahoraCompletado ? "COMPLETADO" : "PENDIENTE"));
+
+            // Actualizar campos
+            if (nuevo.getNombre() != null) habitoExistente.setNombre(nuevo.getNombre());
+            if (nuevo.getDescripcion() != null) habitoExistente.setDescripcion(nuevo.getDescripcion());
+            if (nuevo.getRol() != null) habitoExistente.setRol(nuevo.getRol());
+            if (nuevo.getDificultad() != null) habitoExistente.setDificultad(nuevo.getDificultad());
+            if (nuevo.getFrecuencia() != null) habitoExistente.setFrecuencia(nuevo.getFrecuencia());
+            habitoExistente.setCompletado(ahoraCompletado);
+
+            Habito actualizado = habitoRepository.save(habitoExistente);
+
+            boolean seCompletoPorPrimeraVez = !estabaCompletado && ahoraCompletado;
+
+            if (seCompletoPorPrimeraVez) {
+                int experiencia = actualizado.getPuntosExperiencia();
+                usuarioService.agregarExperiencia(username, experiencia);
+                System.out.println("✅ Experiencia agregada: " + experiencia + " XP para " + username);
+            } else if (estabaCompletado && !ahoraCompletado) {
+                System.out.println("ℹ️ Hábito desmarcado, no se resta experiencia");
+            } else if (estabaCompletado && ahoraCompletado) {
+                System.out.println("ℹ️ Hábito ya estaba completado, no se agrega experiencia");
+            } else {
+                System.out.println("ℹ️ Hábito sigue pendiente, no se agrega experiencia");
+            }
+
+            System.out.println("Hábito actualizado exitosamente");
+
+            // Crear respuesta simplificada
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", actualizado.getId());
+            response.put("nombre", actualizado.getNombre());
+            response.put("descripcion", actualizado.getDescripcion());
+            response.put("rol", actualizado.getRol());
+            response.put("dificultad", actualizado.getDificultad());
+            response.put("frecuencia", actualizado.getFrecuencia());
+            response.put("puntosExperiencia", actualizado.getPuntosExperiencia());
+            response.put("completado", actualizado.isCompletado());
+            response.put("activo", actualizado.isActivo());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("ERROR al actualizar hábito: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error al actualizar el hábito: " + e.getMessage());
         }
-
-        // Actualizar campos permitidos
-        System.out.println("Actualizando hábito:");
-        System.out.println(" - Nombre: " + h.getNombre() + " -> " + nuevo.getNombre());
-        System.out.println(" - Descripción: " + h.getDescripcion() + " -> " + nuevo.getDescripcion());
-        System.out.println(" - Rol: " + h.getRol() + " -> " + nuevo.getRol());
-        System.out.println(" - Completado: " + h.isCompletado() + " -> " + nuevo.isCompletado());
-
-        h.setNombre(nuevo.getNombre());
-        h.setDescripcion(nuevo.getDescripcion());
-        h.setRol(nuevo.getRol());
-        h.setCompletado(nuevo.isCompletado());
-
-        Habito actualizado = habitoRepository.save(h);
-        System.out.println("Hábito actualizado exitosamente");
-
-        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")

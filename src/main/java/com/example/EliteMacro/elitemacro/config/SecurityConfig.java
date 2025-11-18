@@ -44,7 +44,6 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // Permite acceso público a estos recursos
                         .requestMatchers(
                                 "/",
                                 "/home.html",

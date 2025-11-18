@@ -1,18 +1,21 @@
 package com.example.EliteMacro.elitemacro.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "habito") // Nombre exacto de la tabla en la BD
+@Table(name = "habito")
 public class Habito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // SOLUCIÓN: Cambiar a EAGER para evitar LazyInitializationException
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnore
     private Usuario usuario;
 
     @Column(name = "nombre", nullable = false, length = 100)
@@ -22,7 +25,7 @@ public class Habito {
     private String descripcion;
 
     @Column(name = "rol", length = 50)
-    private String rol; // top, mid, jungle, adc, support, etc.
+    private String rol;
 
     @Column(name = "completado", nullable = false)
     private boolean completado = false;
@@ -34,10 +37,10 @@ public class Habito {
     private LocalDateTime fechaActualizacion;
 
     @Column(name = "dificultad", length = 20)
-    private String dificultad; // FACIL, MEDIO, DIFICIL
+    private String dificultad;
 
     @Column(name = "frecuencia", length = 50)
-    private String frecuencia; // DIARIO, SEMANAL, MENSUAL
+    private String frecuencia;
 
     @Column(name = "puntos_experiencia")
     private Integer puntosExperiencia = 0;
@@ -45,7 +48,7 @@ public class Habito {
     @Column(name = "activo", nullable = false)
     private boolean activo = true;
 
-    // Constructores
+    // Constructores, getters, setters y otros métodos permanecen igual...
     public Habito() {
         this.fechaCreacion = LocalDateTime.now();
     }
@@ -58,7 +61,6 @@ public class Habito {
         this.rol = rol;
     }
 
-    // Método pre-update para actualizar fecha
     @PreUpdate
     public void preUpdate() {
         this.fechaActualizacion = LocalDateTime.now();
@@ -110,7 +112,6 @@ public class Habito {
     public void marcarComoCompletado() {
         this.completado = true;
         this.fechaActualizacion = LocalDateTime.now();
-        // Puedes agregar lógica para calcular puntos de experiencia aquí
         calcularPuntosExperiencia();
     }
 
