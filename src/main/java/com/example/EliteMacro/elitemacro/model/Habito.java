@@ -12,7 +12,6 @@ public class Habito {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // SOLUCIÓN: Cambiar a EAGER para evitar LazyInitializationException
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id", nullable = false)
     @JsonIgnore
@@ -29,6 +28,10 @@ public class Habito {
 
     @Column(name = "completado", nullable = false)
     private boolean completado = false;
+
+    // NUEVO CAMPO: Para evitar duplicar experiencia
+    @Column(name = "experiencia_otorgada", nullable = false)
+    private boolean experienciaOtorgada = false;
 
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
@@ -48,7 +51,7 @@ public class Habito {
     @Column(name = "activo", nullable = false)
     private boolean activo = true;
 
-    // Constructores, getters, setters y otros métodos permanecen igual...
+    // Constructores
     public Habito() {
         this.fechaCreacion = LocalDateTime.now();
     }
@@ -88,6 +91,12 @@ public class Habito {
         if (completado) {
             this.fechaActualizacion = LocalDateTime.now();
         }
+    }
+
+    // NUEVO GETTER Y SETTER para experienciaOtorgada
+    public boolean isExperienciaOtorgada() { return experienciaOtorgada; }
+    public void setExperienciaOtorgada(boolean experienciaOtorgada) {
+        this.experienciaOtorgada = experienciaOtorgada;
     }
 
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
@@ -139,6 +148,7 @@ public class Habito {
                 "id=" + id +
                 ", nombre='" + nombre + '\'' +
                 ", completado=" + completado +
+                ", experienciaOtorgada=" + experienciaOtorgada +
                 ", rol='" + rol + '\'' +
                 '}';
     }

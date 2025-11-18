@@ -200,7 +200,7 @@ public class HabitoController {
             habito.setUsuario(usuario);
             habito.setActivo(true);
             habito.setCompletado(false);
-
+            habito.setExperienciaOtorgada(false);
 
             // Establecer valores por defecto si no vienen
             if (habito.getDificultad() == null) {
@@ -268,34 +268,52 @@ public class HabitoController {
 
             boolean estabaCompletado = habitoExistente.isCompletado();
             boolean ahoraCompletado = nuevo.isCompletado();
+            boolean experienciaYaOtorgada = habitoExistente.isExperienciaOtorgada();
 
             System.out.println("Estado anterior: " + (estabaCompletado ? "COMPLETADO" : "PENDIENTE"));
             System.out.println("Estado nuevo: " + (ahoraCompletado ? "COMPLETADO" : "PENDIENTE"));
+            System.out.println("Experiencia ya otorgada: " + experienciaYaOtorgada);
 
-            // Actualizar campos
+            // LÓGICA MEJORADA PARA EXPERIENCIA
+            boolean seCompletoPorPrimeraVez = !estabaCompletado && ahoraCompletado && !experienciaYaOtorgada;
+            boolean seRecompleta = !estabaCompletado && ahoraCompletado && experienciaYaOtorgada;
+            boolean seDesmarca = estabaCompletado && !ahoraCompletado;
+
+            // Actualizar campos básicos
             if (nuevo.getNombre() != null) habitoExistente.setNombre(nuevo.getNombre());
             if (nuevo.getDescripcion() != null) habitoExistente.setDescripcion(nuevo.getDescripcion());
             if (nuevo.getRol() != null) habitoExistente.setRol(nuevo.getRol());
             if (nuevo.getDificultad() != null) habitoExistente.setDificultad(nuevo.getDificultad());
             if (nuevo.getFrecuencia() != null) habitoExistente.setFrecuencia(nuevo.getFrecuencia());
+
+            // Actualizar estado de completado
             habitoExistente.setCompletado(ahoraCompletado);
 
-            Habito actualizado = habitoRepository.save(habitoExistente);
-
-            boolean seCompletoPorPrimeraVez = !estabaCompletado && ahoraCompletado;
-
+            // Manejar experiencia
             if (seCompletoPorPrimeraVez) {
-                int experiencia = actualizado.getPuntosExperiencia();
+                // Primera vez que se completa → sumar experiencia
+                int experiencia = habitoExistente.getPuntosExperiencia();
                 usuarioService.agregarExperiencia(username, experiencia);
-                System.out.println("✅ Experiencia agregada: " + experiencia + " XP para " + username);
-            } else if (estabaCompletado && !ahoraCompletado) {
-                System.out.println("ℹ️ Hábito desmarcado, no se resta experiencia");
+                habitoExistente.setExperienciaOtorgada(true);
+                System.out.println("✅ Experiencia agregada por primera vez: " + experiencia + " XP para " + username);
+
+            } else if (seRecompleta) {
+                // Se está completando de nuevo después de haber sido desmarcado
+                // PERO ya se otorgó experiencia antes → NO sumar de nuevo
+                System.out.println("⚠️ Hábito recompletado, pero no se otorga experiencia adicional (ya fue otorgada)");
+
+            } else if (seDesmarca) {
+                // Se está desmarcando un hábito completado
+                // La experiencia otorgada se mantiene en true, pero no se resta experiencia
+                System.out.println("ℹ️ Hábito desmarcado, experiencia otorgada se mantiene: " + experienciaYaOtorgada);
+
             } else if (estabaCompletado && ahoraCompletado) {
-                System.out.println("ℹ️ Hábito ya estaba completado, no se agrega experiencia");
+                System.out.println("ℹ️ Hábito ya estaba completado, no se realiza acción");
             } else {
                 System.out.println("ℹ️ Hábito sigue pendiente, no se agrega experiencia");
             }
 
+            Habito actualizado = habitoRepository.save(habitoExistente);
             System.out.println("Hábito actualizado exitosamente");
 
             // Crear respuesta simplificada
@@ -308,6 +326,7 @@ public class HabitoController {
             response.put("frecuencia", actualizado.getFrecuencia());
             response.put("puntosExperiencia", actualizado.getPuntosExperiencia());
             response.put("completado", actualizado.isCompletado());
+            response.put("experienciaOtorgada", actualizado.isExperienciaOtorgada());
             response.put("activo", actualizado.isActivo());
 
             return ResponseEntity.ok(response);
