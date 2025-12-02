@@ -2,35 +2,67 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro | EliteMacro</title>
   <link rel="stylesheet" href="css/registro_style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-<div class="form-container">
-  <h2>Crear Cuenta</h2>
-  <form method="post" action="/api/registro">
-    <div class="input-group">
-      <i class="fas fa-user"></i>
-      <input type="text" name="username" placeholder="Nombre de usuario" required>
+<div class="page-wrapper">
+  <div class="form-container">
+    <h2>Crear Cuenta</h2>
+
+    <!-- Mensajes de error/éxito -->
+    <div id="message-container">
+      <!-- Los mensajes se mostrarán aquí dinámicamente -->
     </div>
-    <div class="input-group">
-      <i class="fas fa-envelope"></i>
-      <input type="email" name="email" placeholder="Correo electrónico" required>
+
+    <form method="post" action="/api/registro" id="form-registro">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" name="username" id="username"
+               placeholder="Nombre de invocador" required>
+      </div>
+
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input type="email" name="email" id="email"
+               placeholder="Correo electrónico" required>
+      </div>
+
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" name="password" id="password" placeholder="Contraseña" required>
+        <small class="hint">Mínimo 6 caracteres, una mayúscula y un carácter especial</small>
+      </div>
+
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" name="confirm-password" id="confirm-password" placeholder="Confirmar contraseña" required>
+      </div>
+
+      <button type="submit" class="btn-primary">Registrarse</button>
+    </form>
+
+    <div class="requirements">
+      <h4><i class="fas fa-shield-alt"></i> Requisitos de la contraseña:</h4>
+      <ul>
+        <li id="req-length"><i class="fas fa-check-circle"></i> Mínimo 6 caracteres</li>
+        <li id="req-uppercase"><i class="fas fa-check-circle"></i> Al menos una mayúscula</li>
+        <li id="req-special"><i class="fas fa-check-circle"></i> Al menos un carácter especial (@$!%*?&)</li>
+        <li id="req-match"><i class="fas fa-check-circle"></i> Las contraseñas coinciden</li>
+      </ul>
     </div>
-    <div class="input-group">
-      <i class="fas fa-lock"></i>
-      <input type="password" name="password" placeholder="Contraseña" required>
+
+    <div class="option">
+      <a href="login.html">¿Ya tienes cuenta?</a>
     </div>
-    <button type="submit" class="btn-primary">Registrarse</button>
-  </form>
-  <div class="option">
-    <a href="login.html">¿Ya tienes cuenta?</a>
+    <a href="home.html" class="btn-secondary">Volver al inicio</a>
   </div>
-  <a href="home.html" class="btn-secondary">Volver a la página principal</a>
 </div>
-<script src="js/registro.js">
-</script>
+
+
+<script src="js/registro.js"></script>
 </body>
 </html>
