@@ -44,7 +44,6 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    // Método adicional para obtener estadísticas
     public Optional<Usuario> obtenerUsuarioConEstadisticas(String username) {
         return usuarioRepository.findByUsername(username);
     }
