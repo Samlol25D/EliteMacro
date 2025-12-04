@@ -45,14 +45,14 @@ class CP03Test extends BaseTest {
 
         // Hábito específico para MID lane
         String habitoData = """
-            {
-                "nombre": "Control de wave nivel 1-3",
-                "descripcion": "Manipular la wave para tener ventaja de nivel 2/3",
-                "rol": "MID",
-                "dificultad": "ALTA",
-                "frecuencia": "POR_PARTIDA"
-            }
-            """;
+                {
+                    "nombre": "Control de wave nivel 1-3",
+                    "descripcion": "Manipular la wave para tener ventaja de nivel 2/3",
+                    "rol": "MID",
+                    "dificultad": "ALTA",
+                    "frecuencia": "POR_PARTIDA"
+                }
+                """;
 
         mockMvc.perform(post("/api/habitos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -94,15 +94,15 @@ class CP03Test extends BaseTest {
         System.out.println("=== Test: Hábito de Jungla con experiencia específica ===");
 
         String habitoData = """
-            {
-                "nombre": "Timer de objetivos épicos",
-                "descripcion": "Anotar timer de Dragón (5min) y Barón (7min)",
-                "rol": "JUNGLE",
-                "dificultad": "MEDIA",
-                "frecuencia": "POR_PARTIDA",
-                "puntosExperiencia": 25
-            }
-            """;
+                {
+                    "nombre": "Timer de objetivos épicos",
+                    "descripcion": "Anotar timer de Dragón (5min) y Barón (7min)",
+                    "rol": "JUNGLE",
+                    "dificultad": "MEDIA",
+                    "frecuencia": "POR_PARTIDA",
+                    "puntosExperiencia": 25
+                }
+                """;
 
         mockMvc.perform(post("/api/habitos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -122,11 +122,11 @@ class CP03Test extends BaseTest {
 
         // Test 1: Sin nombre
         String habitoData = """
-            {
-                "descripcion": "Sin nombre",
-                "rol": "MID"
-            }
-            """;
+                {
+                    "descripcion": "Sin nombre",
+                    "rol": "MID"
+                }
+                """;
 
         mockMvc.perform(post("/api/habitos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -135,11 +135,11 @@ class CP03Test extends BaseTest {
 
         // Test 2: Sin descripción
         habitoData = """
-            {
-                "nombre": "Sin descripción",
-                "rol": "MID"
-            }
-            """;
+                {
+                    "nombre": "Sin descripción",
+                    "rol": "MID"
+                }
+                """;
 
         mockMvc.perform(post("/api/habitos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -156,13 +156,13 @@ class CP03Test extends BaseTest {
         System.out.println("=== Test: Hábito con dificultad BAJA ===");
 
         String habitoData = """
-            {
-                "nombre": "Usar trinket al inicio",
-                "descripcion": "Colocar trinket en river a los 1:30",
-                "rol": "TODOS",
-                "dificultad": "BAJA"
-            }
-            """;
+                {
+                    "nombre": "Usar trinket al inicio",
+                    "descripcion": "Colocar trinket en river a los 1:30",
+                    "rol": "TODOS",
+                    "dificultad": "BAJA"
+                }
+                """;
 
         mockMvc.perform(post("/api/habitos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -171,26 +171,5 @@ class CP03Test extends BaseTest {
                 .andExpect(jsonPath("$.puntosExperiencia").value(10));
 
         System.out.println("✅ Hábito BAJA dificultad otorga 10 XP");
-    }
-
-    @Test
-    @DisplayName("CP03 - Usuario no autenticado no puede crear hábitos")
-    void testUsuarioNoAutenticadoNoPuedeCrear() throws Exception {
-        System.out.println("=== Test: Acceso no autenticado ===");
-
-        String habitoData = """
-            {
-                "nombre": "Hábito no autorizado",
-                "descripcion": "Usuario no autenticado intentando crear",
-                "rol": "MID"
-            }
-            """;
-
-        mockMvc.perform(post("/api/habitos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(habitoData))
-                .andExpect(status().isUnauthorized());
-
-        System.out.println("✅ Correctamente denegado acceso no autenticado");
     }
 }

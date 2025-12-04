@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -43,6 +44,12 @@ public class Usuario implements UserDetails {
 
     @Column(name = "experiencia_para_siguiente_nivel", nullable = false)
     private int experienciaParaSiguienteNivel = 100;
+
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
 
     // Constructores
     public Usuario() {}
@@ -92,6 +99,11 @@ public class Usuario implements UserDetails {
     public void setExperienciaParaSiguienteNivel(int experienciaParaSiguienteNivel) {
         this.experienciaParaSiguienteNivel = experienciaParaSiguienteNivel;
     }
+    public String getResetPasswordToken() { return resetPasswordToken; }
+    public void setResetPasswordToken(String resetPasswordToken) { this.resetPasswordToken = resetPasswordToken; }
+
+    public LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
 
     // Métodos para el sistema de niveles
     public int calcularExperienciaParaSiguienteNivel(int nivel) {

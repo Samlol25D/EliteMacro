@@ -397,3 +397,71 @@ function eliminarHabito(id) {
       alert('Error al eliminar hábito');
     });
 }
+function agregarHabito() {
+  const nombre = document.getElementById("nombre").value;
+  const descripcion = document.getElementById("descripcion").value;
+  const rol = document.getElementById("rol").value;
+  const dificultad = document.getElementById("dificultad").value;
+
+  if (!nombre || !descripcion) {
+    alert('Por favor completa todos los campos');
+    return;
+  }
+
+  // Calcular puntos de experiencia basados en dificultad
+  let puntosExperiencia;
+  switch(dificultad) {
+    case 'BAJA': puntosExperiencia = 10; break;
+    case 'MEDIA': puntosExperiencia = 20; break;
+    case 'ALTA': puntosExperiencia = 30; break;
+    default: puntosExperiencia = 20;
+  }
+
+  const nuevoHabito = {
+    nombre: nombre,
+    descripcion: descripcion,
+    rol: rol,
+    dificultad: dificultad,
+    puntosExperiencia: puntosExperiencia,
+    completado: false
+  };
+
+  console.log("Enviando hábito predeterminado:", nuevoHabito);
+
+  fetch("/api/admin/habitos", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(nuevoHabito)
+  })
+  .then(response => {
+    console.log("Respuesta del servidor:", response);
+    if (!response.ok) {
+      return response.text().then(text => { throw new Error(text) });
+    }
+    return response.json();
+  })
+  .then(result => {
+    console.log("Resultado:", result);
+
+    // Limpiar formulario
+    document.getElementById("nombre").value = '';
+    document.getElementById("descripcion").value = '';
+    document.getElementById("rol").value = 'TODOS';
+    document.getElementById("dificultad").value = 'MEDIA';
+
+    // Mostrar mensaje de éxito con detalles
+    alert(`¡Hábito predeterminado creado exitosamente!\n\n` +
+          `• Se ha asignado a ${result.totalUsuarios || result.habitosCreados || 0} usuarios\n` +
+          `• Rol del hábito: ${result.rolHábito || 'TODOS'}\n` +
+          `• Experiencia: ${puntosExperiencia} XP`);
+
+    // Recargar la tabla de hábitos
+    cargarHabitos();
+  })
+  .catch(error => {
+    console.error('Error completo:', error);
+    alert('Error al crear el hábito predeterminado: ' + error.message);
+  });
+}

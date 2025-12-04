@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -105,48 +107,68 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> crearHabitoPredeterminado(@RequestBody Habito habito) {
         try {
-            System.out.println("=== CREANDO HÁBITO PREDETERMINADO ===");
-            System.out.println("Datos recibidos:");
-            System.out.println(" - Nombre: " + habito.getNombre());
-            System.out.println(" - Descripción: " + habito.getDescripcion());
-            System.out.println(" - Rol: " + habito.getRol());
-            System.out.println(" - Completado: " + habito.isCompletado());
+            System.out.println("=== CREANDO HÁBITO PREDETERMINADO PARA TODOS LOS USUARIOS ===");
 
-            // Validar datos requeridos
+            // Validaciones básicas
             if (habito.getNombre() == null || habito.getNombre().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("El nombre del hábito es requerido");
             }
-
             if (habito.getDescripcion() == null || habito.getDescripcion().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("La descripción del hábito es requerida");
             }
 
-            // Asegurar que el rol tenga un valor por defecto si es null
-            if (habito.getRol() == null) {
-                habito.setRol("TODOS");
+            // Obtener TODOS los usuarios (activos o no)
+            List<Usuario> todosUsuarios = usuarioRepository.findAll();
+            System.out.println("Total de usuarios encontrados: " + todosUsuarios.size());
+
+            // Contador de hábitos creados
+            int habitosCreados = 0;
+
+            // Crear una copia del hábito para CADA usuario
+            for (Usuario usuario : todosUsuarios) {
+                Habito nuevoHabito = new Habito();
+                nuevoHabito.setNombre(habito.getNombre().trim());
+                nuevoHabito.setDescripcion(habito.getDescripcion().trim());
+                nuevoHabito.setRol(habito.getRol() != null ? habito.getRol() : "TODOS");
+                nuevoHabito.setCompletado(false);
+                nuevoHabito.setExperienciaOtorgada(false);
+                nuevoHabito.setActivo(true);
+                nuevoHabito.setUsuario(usuario); // ¡IMPORTANTE! Asignar al usuario
+                nuevoHabito.setDificultad(habito.getDificultad() != null ? habito.getDificultad() : "MEDIA");
+                nuevoHabito.setFrecuencia(habito.getFrecuencia() != null ? habito.getFrecuencia() : "DIARIA");
+
+                // Calcular puntos de experiencia según dificultad
+                if (habito.getPuntosExperiencia() != null && habito.getPuntosExperiencia() > 0) {
+                    nuevoHabito.setPuntosExperiencia(habito.getPuntosExperiencia());
+                } else {
+                    // Calcular automáticamente
+                    switch (nuevoHabito.getDificultad().toUpperCase()) {
+                        case "BAJA": nuevoHabito.setPuntosExperiencia(10); break;
+                        case "MEDIA": nuevoHabito.setPuntosExperiencia(20); break;
+                        case "ALTA": nuevoHabito.setPuntosExperiencia(30); break;
+                        default: nuevoHabito.setPuntosExperiencia(20);
+                    }
+                }
+
+                habitoRepository.save(nuevoHabito);
+                habitosCreados++;
+                System.out.println("Hábito creado para: " + usuario.getUsername());
             }
 
-            // Crear nuevo hábito predeterminado (sin usuario asignado)
-            Habito nuevoHabito = new Habito();
-            nuevoHabito.setNombre(habito.getNombre().trim());
-            nuevoHabito.setDescripcion(habito.getDescripcion().trim());
-            nuevoHabito.setRol(habito.getRol());
-            nuevoHabito.setCompletado(false);
-            nuevoHabito.setUsuario(null); // Hábito predeterminado, sin usuario
+            System.out.println("=== HÁBITOS CREADOS EXITOSAMENTE ===");
+            System.out.println("Total de hábitos creados: " + habitosCreados);
 
-            System.out.println("Guardando hábito en la base de datos...");
-            Habito habitoGuardado = habitoRepository.save(nuevoHabito);
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Hábito predeterminado creado exitosamente");
+            response.put("totalUsuarios", todosUsuarios.size());
+            response.put("habitosCreados", habitosCreados);
+            response.put("rolHábito", habito.getRol() != null ? habito.getRol() : "TODOS");
 
-            System.out.println("=== HÁBITO CREADO EXITOSAMENTE ===");
-            System.out.println("ID del hábito: " + habitoGuardado.getId());
-            System.out.println("Nombre: " + habitoGuardado.getNombre());
-            System.out.println("Rol: " + habitoGuardado.getRol());
-
-            return ResponseEntity.ok(habitoGuardado);
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             System.out.println("=== ERROR AL CREAR HÁBITO ===");
-            System.out.println("Mensaje de error: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Error al crear hábito: " + e.getMessage());
         }

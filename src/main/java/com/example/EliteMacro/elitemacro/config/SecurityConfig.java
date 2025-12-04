@@ -49,9 +49,12 @@ public class SecurityConfig {
                                 "/home.html",
                                 "/login.html",
                                 "/registro.html",
+                                "/forgot-password.html",
+                                "/reset-password.html",
                                 "/index.html",
                                 "/api/registro",
                                 "/api/registro/**",
+                                "/api/password/**",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
@@ -75,7 +78,7 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/home.html")
                         .permitAll()
                 )
-                .csrf(csrf -> csrf.disable()); // Deshabilitado para APIs REST
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
