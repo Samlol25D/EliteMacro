@@ -60,7 +60,7 @@ server:
   port: 8080
 
 ---
-# Configuración RENDER (perfil prod)
+# Configuración RENDER (perfil prod) - CORREGIDO
 spring:
   config:
     activate:
@@ -68,9 +68,10 @@ spring:
 
   datasource:
     url: ${DATABASE_URL}
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: org.postgresql.Driver  # ← OBLIGATORIO
     hikari:
       maximum-pool-size: 2
+      driver-class-name: org.postgresql.Driver  # ← OBLIGATORIO PARA HIKARI
 
   jpa:
     properties:
