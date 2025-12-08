@@ -83,7 +83,7 @@ spring:
 
   mail:
     username: ${EMAIL_USERNAME:samlol25d@gmail.com}
-    password: ${EMAIL_PASSWORD:uweo kljr ipck gvwz}
+    password: ${EMAIL_PASSWORD}
 
 server:
   port: ${PORT:8080}
