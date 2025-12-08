@@ -1,24 +1,32 @@
-# Dockerfile - VERSIÓN FINAL CORREGIDA
+# Dockerfile CORREGIDO
 FROM maven:3.9.6-eclipse-temurin-21 AS builder
+
+# Configurar UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
 WORKDIR /app
 
-# 1. Copiar solo pom.xml primero (para cache de dependencias)
+# 1. Copiar solo pom.xml primero
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
 # 2. Copiar código fuente
 COPY src ./src
 
-# 3. COMPILAR SIN -Pprod (¡ESTO ES LO MÁS IMPORTANTE!)
-RUN mvn clean package -DskipTests
+# 3. Compilar con encoding UTF-8 explícito
+RUN mvn clean package -DskipTests -Dfile.encoding=UTF-8
 
 # 4. Imagen de ejecución
 FROM eclipse-temurin:21-jre-jammy
-WORKDIR /app
 
+# Configurar UTF-8 también aquí
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 ENV PORT=8080
-ENV JAVA_OPTS="-Xmx256m -Xms128m"
+ENV JAVA_OPTS="-Xmx256m -Xms128m -Dfile.encoding=UTF-8 -Dserver.port=${PORT}"
 
+WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE ${PORT}
