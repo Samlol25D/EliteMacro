@@ -3,6 +3,7 @@ package com.example.EliteMacro.elitemacro.service;
 import com.example.EliteMacro.elitemacro.model.Usuario;
 import com.example.EliteMacro.elitemacro.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,11 +18,14 @@ public class PasswordResetService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
+    @Autowired(required = false) // ← ¡CAMBIAR AQUÍ!
     private JavaMailSender mailSender;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Value("${spring.mail.username:#{null}}")
+    private String mailUsername;
 
     public boolean solicitarResetPassword(String email) {
         // Buscar usuario por email
@@ -78,11 +82,19 @@ public class PasswordResetService {
 
     private void sendResetEmail(String toEmail, String token, String username) {
         try {
+            // Verificar si el mail está configurado
+            if (mailSender == null || mailUsername == null || mailUsername.isEmpty()) {
+                System.out.println("⚠️ Servicio de email NO configurado. Simulando envío a: " + toEmail);
+                System.out.println("📧 Token para " + toEmail + " (" + username + "): " + token);
+                System.out.println("🔗 Enlace simulado: http://tu-app.com/reset-password?token=" + token + "&email=" + toEmail);
+                return;
+            }
+
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(toEmail);
             message.setSubject("Restablecimiento de contraseña - EliteMacro");
 
-            String resetLink = "http://localhost:8080/reset-password?token=" + token + "&email=" + toEmail;
+            String resetLink = "http://tu-app.com/reset-password?token=" + token + "&email=" + toEmail;
 
             String emailContent = "Hola " + username + ",\n\n" +
                     "Has solicitado restablecer tu contraseña en EliteMacro.\n\n" +
@@ -96,9 +108,9 @@ public class PasswordResetService {
             message.setText(emailContent);
 
             mailSender.send(message);
+            System.out.println("✅ Email enviado exitosamente a: " + toEmail);
         } catch (Exception e) {
-            // Log del error
-            System.err.println("Error enviando email: " + e.getMessage());
+            System.err.println("❌ Error enviando email a " + toEmail + ": " + e.getMessage());
         }
     }
 }
