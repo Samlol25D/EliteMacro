@@ -34,7 +34,7 @@ spring:
           writetimeout: 5000
 
 ---
-# Configuración LOCAL (perfil dev) - MySQL
+# Configuración LOCAL (perfil dev)
 spring:
   config:
     activate:
@@ -60,36 +60,30 @@ server:
   port: 8080
 
 ---
-# Configuración RENDER (perfil prod) - VERSIÓN CORREGIDA
+# Configuración RENDER (perfil prod) - SIMPLIFICADA
 spring:
   config:
     activate:
       on-profile: prod
 
-  # FORZAR PostgreSQL explícitamente
+  # PostgreSQL OBLIGATORIO - sin fallback
   datasource:
-    url: ${DATABASE_URL:jdbc:h2:mem:elitemacrodb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:}
-    # ESTAS DOS LÍNEAS SON CLAVE:
-    driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
+    url: ${DATABASE_URL}
+    username: ${DB_USERNAME:elitemacro_user}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
     hikari:
-      driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
       maximum-pool-size: 2
 
   jpa:
     properties:
       hibernate:
-        dialect: ${JPA_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
-        jdbc:
-          lob:
-            non-contextual-creation: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
-    database-platform: ${JPA_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
 
   mail:
     username: ${EMAIL_USERNAME:samlol25d@gmail.com}
-    password: ${EMAIL_PASSWORD:olenomemes123}
+    password: ${EMAIL_PASSWORD}
 
 server:
   port: ${PORT:8080}
