@@ -1,0 +1,89 @@
+spring:
+  application:
+    name: EliteMacro
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+    default-property-inclusion: non_null
+
+  logging:
+    level:
+      com.example.EliteMacro.elitemacro: DEBUG
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+---
+# Configuración LOCAL (perfil dev)
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/elitemacrodb?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: olenomemes123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+
+  mail:
+    username: samlol25d@gmail.com
+    password: olenomemes123
+
+server:
+  port: 8080
+
+---
+# Configuración RENDER (perfil prod)
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 2
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non-contextual-creation: true
+    show-sql: false
+
+  mail:
+    username: ${EMAIL_USERNAME:samlol25d@gmail.com}
+    password: ${EMAIL_PASSWORD:olenomemes123}
+
+server:
+  port: ${PORT:8080}
