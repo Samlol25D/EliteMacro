@@ -18,7 +18,7 @@ public class PasswordResetService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired(required = false) // ← ¡CAMBIAR AQUÍ!
+    @Autowired
     private JavaMailSender mailSender;
 
     @Autowired

@@ -5,10 +5,8 @@ import com.example.EliteMacro.elitemacro.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +16,9 @@ import java.util.Optional;
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class UsuarioController {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UsuarioService usuarioService;
@@ -124,5 +125,69 @@ public class UsuarioController {
         nivelInfo.put("experienciaTotal", usuario.getExperienciaTotal());
 
         return ResponseEntity.ok(nivelInfo);
+    }
+
+    @PutMapping("/usuario/actualizar")
+    public ResponseEntity<?> actualizarPerfil(Authentication authentication,
+                                              @RequestBody Map<String, String> request) {
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("No autenticado");
+        }
+
+        String username = authentication.getName();
+        Optional<Usuario> usuarioOpt = usuarioService.obtenerUsuarioPorUsername(username);
+
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Usuario usuario = usuarioOpt.get();
+
+        try {
+            // Actualizar username si se proporciona y es diferente
+            String nuevoUsername = request.get("username");
+            if (nuevoUsername != null && !nuevoUsername.trim().isEmpty() &&
+                    !nuevoUsername.equals(usuario.getUsername())) {
+
+                // Verificar si el nuevo username ya existe
+                Optional<Usuario> usuarioExistente = usuarioService.obtenerUsuarioPorUsername(nuevoUsername);
+                if (usuarioExistente.isPresent()) {
+                    return ResponseEntity.badRequest()
+                            .body("El nombre de usuario ya está en uso");
+                }
+                usuario.setUsername(nuevoUsername);
+            }
+
+            // Actualizar email si se proporciona
+            String nuevoEmail = request.get("email");
+            if (nuevoEmail != null && !nuevoEmail.trim().isEmpty()) {
+                usuario.setEmail(nuevoEmail);
+            }
+
+            // Actualizar password si se proporciona
+            String nuevaPassword = request.get("password");
+            if (nuevaPassword != null && !nuevaPassword.trim().isEmpty()) {
+                if (nuevaPassword.length() < 6) {
+                    return ResponseEntity.badRequest()
+                            .body("La contraseña debe tener al menos 6 caracteres");
+                }
+                usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+            }
+
+            // Guardar los cambios
+            usuarioService.guardarUsuario(usuario);
+
+            // Devolver el usuario actualizado
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("username", usuario.getUsername());
+            respuesta.put("email", usuario.getEmail());
+            respuesta.put("mensaje", "Perfil actualizado exitosamente");
+
+            return ResponseEntity.ok(respuesta);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body("Error al actualizar el perfil: " + e.getMessage());
+        }
     }
 }
