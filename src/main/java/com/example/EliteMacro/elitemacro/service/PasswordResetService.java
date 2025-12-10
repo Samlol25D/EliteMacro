@@ -3,7 +3,6 @@ package com.example.EliteMacro.elitemacro.service;
 import com.example.EliteMacro.elitemacro.model.Usuario;
 import com.example.EliteMacro.elitemacro.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,85 +15,90 @@ import java.util.UUID;
 public class PasswordResetService {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private JavaMailSender mailSender; // ¡SIN (required = false)!
 
-    @Autowired(required = false)
-    private JavaMailSender mailSender;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${spring.mail.username:#{null}}")
-    private String mailUsername;
-
+    // ========== MÉTODO 1: Solicitar reset ==========
     public boolean solicitarResetPassword(String email) {
-        // Buscar usuario por email
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
 
         if (usuario == null) {
-            return false; // No revelar que el email no existe por seguridad
+            System.out.println("⚠️ Email no encontrado: " + email);
+            return false;
         }
 
-        // Generar token único
         String token = UUID.randomUUID().toString();
+        System.out.println("🔑 Token generado: " + token);
 
-        // Establecer token y fecha de expiración (1 hora)
         usuario.setResetPasswordToken(token);
         usuario.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
-        usuarioRepository.save(usuario);
 
-        // Enviar email
+        try {
+            usuarioRepository.save(usuario);
+            System.out.println("✅ Token guardado para: " + usuario.getUsername());
+        } catch (Exception e) {
+            System.err.println("❌ Error guardando token: " + e.getMessage());
+            return false;
+        }
+
         sendResetEmail(usuario.getEmail(), token, usuario.getUsername());
-
         return true;
     }
 
+    // ========== MÉTODO 2: Validar token ==========
     public boolean validarToken(String email, String token) {
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
 
         if (usuario == null || usuario.getResetPasswordToken() == null) {
+            System.out.println("❌ Token inválido - Usuario o token nulo");
             return false;
         }
 
-        // Verificar token y que no haya expirado
-        return usuario.getResetPasswordToken().equals(token) &&
+        boolean esValido = usuario.getResetPasswordToken().equals(token) &&
                 usuario.getResetTokenExpiry().isAfter(LocalDateTime.now());
+
+        System.out.println("🔍 Validación token " + token + ": " + (esValido ? "VÁLIDO" : "INVÁLido/EXPIRO"));
+        return esValido;
     }
 
+    // ========== MÉTODO 3: Resetear contraseña ==========
     public boolean resetPassword(String email, String token, String newPassword) {
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
 
         if (usuario == null || !validarToken(email, token)) {
+            System.out.println("❌ No se puede resetear - Token inválido");
             return false;
         }
 
-        // Actualizar contraseña
-        usuario.setPassword(passwordEncoder.encode(newPassword));
-
-        // Limpiar token
-        usuario.setResetPasswordToken(null);
-        usuario.setResetTokenExpiry(null);
-
-        usuarioRepository.save(usuario);
-
-        return true;
+        try {
+            usuario.setPassword(passwordEncoder.encode(newPassword));
+            usuario.setResetPasswordToken(null);
+            usuario.setResetTokenExpiry(null);
+            usuarioRepository.save(usuario);
+            System.out.println("✅ Contraseña actualizada para: " + email);
+            return true;
+        } catch (Exception e) {
+            System.err.println("❌ Error actualizando contraseña: " + e.getMessage());
+            return false;
+        }
     }
 
+    // ========== MÉTODO 4: Enviar email ==========
     private void sendResetEmail(String toEmail, String token, String username) {
         try {
-            // Verificar si el mail está configurado
-            if (mailSender == null || mailUsername == null || mailUsername.isEmpty()) {
-                System.out.println("⚠️ Servicio de email NO configurado. Simulando envío a: " + toEmail);
-                System.out.println("📧 Token para " + toEmail + " (" + username + "): " + token);
-                System.out.println("🔗 Enlace simulado: http://tu-app.com/reset-password?token=" + token + "&email=" + toEmail);
-                return;
-            }
+            // ENLACE REAL para tu app en Render
+            String resetLink = "https://elitemacro.onrender.com/reset-password.html?token=" +
+                    token + "&email=" + toEmail;
 
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("samlol25d@gmail.com"); // ¡IMPORTANTE!
             message.setTo(toEmail);
             message.setSubject("Restablecimiento de contraseña - EliteMacro");
-
-            String resetLink = "http://tu-app.com/reset-password?token=" + token + "&email=" + toEmail;
 
             String emailContent = "Hola " + username + ",\n\n" +
                     "Has solicitado restablecer tu contraseña en EliteMacro.\n\n" +
@@ -108,9 +112,12 @@ public class PasswordResetService {
             message.setText(emailContent);
 
             mailSender.send(message);
-            System.out.println("✅ Email enviado exitosamente a: " + toEmail);
+            System.out.println("✅ Email REAL enviado a: " + toEmail);
+            System.out.println("🔗 Enlace enviado: " + resetLink);
+
         } catch (Exception e) {
-            System.err.println("❌ Error enviando email a " + toEmail + ": " + e.getMessage());
+            System.err.println("❌ Error REAL enviando email: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
