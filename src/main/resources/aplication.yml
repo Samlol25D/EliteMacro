@@ -2,14 +2,30 @@ spring:
   application:
     name: EliteMacro
 
-  jackson:
-    serialization:
-      fail-on-empty-beans: false
-    default-property-inclusion: non_null
+  # ===== CONFIGURACIÓN DE CORREO =====
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: samlol25d@gmail.com
+    # ¡IMPORTANTE! La contraseña de aplicación SIN ESPACIOS:
+    password: sadpsnxmsoyaqufe
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 50000  # Aumentado
+          timeout: 50000           # Aumentado
+          writetimeout: 50000      # Aumentado
 
+  # ===== CONFIGURACIÓN GENERAL =====
   logging:
     level:
-      com.example.EliteMacro.elitemacro: DEBUG
+      org.springframework.mail: DEBUG  # Para ver logs de correo
+      com.example.EliteMacro: DEBUG
 
   jpa:
     hibernate:
@@ -19,22 +35,8 @@ spring:
         format_sql: true
     open-in-view: false
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
-
+# ===== PERFIL dev =====
 ---
-# Configuración LOCAL (perfil dev)
 spring:
   config:
     activate:
@@ -52,21 +54,16 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
 
-  mail:
-    username: samlol25d@gmail.com
-    password: olenomemes123
-
 server:
   port: 8080
 
+# ===== PERFIL prod =====
 ---
-# Configuración RENDER (perfil prod) - SIMPLIFICADA
 spring:
   config:
     activate:
       on-profile: prod
 
-  # PostgreSQL OBLIGATORIO - sin fallback
   datasource:
     url: ${DATABASE_URL}
     username: ${DB_USERNAME:elitemacro_user}
@@ -80,10 +77,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
-
-  mail:
-    username: ${EMAIL_USERNAME:samlol25d@gmail.com}
-    password: ${EMAIL_PASSWORD}
 
 server:
   port: ${PORT:8080}
