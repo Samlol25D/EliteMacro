@@ -1,6 +1,7 @@
 package com.example.EliteMacro.elitemacro.controller;
 
 import com.example.EliteMacro.elitemacro.model.Usuario;
+import com.example.EliteMacro.elitemacro.repository.UsuarioRepository;
 import com.example.EliteMacro.elitemacro.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -189,5 +190,38 @@ public class UsuarioController {
             return ResponseEntity.status(500)
                     .body("Error al actualizar el perfil: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/create-first-admin")
+    public ResponseEntity<?> createFirstAdmin() {
+        // Solo permitir si no hay admin
+        long adminCount = usuarioService.contarAdmins();
+
+        if (adminCount > 0) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Ya existe al menos un usuario admin");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        // Crear usuario admin
+        Usuario admin = new Usuario();
+        admin.setUsername("SamAdmin");
+        admin.setPassword(passwordEncoder.encode("Admin123!"));
+        admin.setEmail("superadmin@elitemacro.com");
+        admin.setRol("ROLE_ADMIN");
+        admin.setExperienciaTotal(1000);
+        admin.setNivel(10);
+        admin.setExperienciaActual(250);
+        admin.setExperienciaParaSiguienteNivel(500);
+
+        usuarioService.guardarUsuario(admin);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Admin creado exitosamente");
+        response.put("credentials", "Usuario: superadmin / Contraseña: SuperAdmin123!");
+
+        return ResponseEntity.ok(response);
     }
 }

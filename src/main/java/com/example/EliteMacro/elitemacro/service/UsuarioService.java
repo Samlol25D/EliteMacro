@@ -44,5 +44,7 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-
+    public long contarAdmins() {
+        return usuarioRepository.countByRol("ROLE_ADMIN");
+    }
 }
