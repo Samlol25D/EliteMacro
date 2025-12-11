@@ -8,13 +8,14 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+
     Optional<Usuario> findByUsername(String username);
 
     Optional<Usuario> findByEmail(String email);
 
     long countByRol(String rol);
 
-    // O usando @Query si prefieres
+    // Método con @Query (opcional)
     @Query("SELECT COUNT(u) FROM Usuario u WHERE u.rol = :rol")
     long contarPorRol(@Param("rol") String rol);
 }
