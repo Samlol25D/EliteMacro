@@ -192,36 +192,39 @@ public class UsuarioController {
         }
     }
 
-    @PostMapping("/create-first-admin")
-    public ResponseEntity<?> createFirstAdmin() {
-        // Solo permitir si no hay admin
-        long adminCount = usuarioService.contarAdmins();
+    @GetMapping("/init-admin")
+    public ResponseEntity<?> initAdmin() {
+        try {
+            if (usuarioService.obtenerUsuarioPorUsername("admin").isPresent()) {
+                return ResponseEntity.ok("✅ El usuario admin ya existe");
+            }
 
-        if (adminCount > 0) {
+            Usuario admin = new Usuario();
+            admin.setUsername("admin");
+            admin.setPassword(passwordEncoder.encode("Admin123!"));
+            admin.setEmail("admin@elitemacro.com");
+            admin.setRol("ROLE_ADMIN");
+            admin.setActivo(true);
+            admin.setExperienciaTotal(5000);
+            admin.setNivel(25);
+            admin.setExperienciaActual(1200);
+            admin.setExperienciaParaSiguienteNivel(2000);
+
+
+            usuarioService.guardarUsuario(admin);
+
             Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Ya existe al menos un usuario admin");
-            return ResponseEntity.badRequest().body(response);
+            response.put("success", true);
+            response.put("message", "Admin creado exitosamente");
+            response.put("credentials", "Usuario: admin, Contraseña: Admin123!");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(500).body(error);
         }
-
-        // Crear usuario admin
-        Usuario admin = new Usuario();
-        admin.setUsername("SamAdmin");
-        admin.setPassword(passwordEncoder.encode("Admin123!"));
-        admin.setEmail("superadmin@elitemacro.com");
-        admin.setRol("ROLE_ADMIN");
-        admin.setExperienciaTotal(1000);
-        admin.setNivel(10);
-        admin.setExperienciaActual(250);
-        admin.setExperienciaParaSiguienteNivel(500);
-
-        usuarioService.guardarUsuario(admin);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "Admin creado exitosamente");
-        response.put("credentials", "Usuario: superadmin / Contraseña: SuperAdmin123!");
-
-        return ResponseEntity.ok(response);
     }
 }
