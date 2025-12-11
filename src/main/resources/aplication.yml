@@ -2,26 +2,6 @@ spring:
   application:
     name: EliteMacro
 
-  # ===== CONFIGURACIÓN DE CORREO (PARA TODOS LOS PERFILES) =====
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: samlol25d@gmail.com
-    password: sadp snxm soya qufe
-    protocol: smtp
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
-    default-encoding: UTF-8
-
-  # ===== CONFIGURACIÓN GENERAL =====
   jackson:
     serialization:
       fail-on-empty-beans: false
@@ -39,8 +19,22 @@ spring:
         format_sql: true
     open-in-view: false
 
-# ===== PERFILES ESPECÍFICOS =====
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
 ---
+# Configuración LOCAL (perfil dev)
 spring:
   config:
     activate:
@@ -58,15 +52,21 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
 
+  mail:
+    username: samlol25d@gmail.com
+    password: olenomemes123
+
 server:
   port: 8080
 
 ---
+# Configuración RENDER (perfil prod) - SIMPLIFICADA
 spring:
   config:
     activate:
       on-profile: prod
 
+  # PostgreSQL OBLIGATORIO - sin fallback
   datasource:
     url: ${DATABASE_URL}
     username: ${DB_USERNAME:elitemacro_user}
@@ -80,6 +80,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
+
+  mail:
+    username: ${EMAIL_USERNAME:samlol25d@gmail.com}
+    password: ${EMAIL_PASSWORD}
 
 server:
   port: ${PORT:8080}
